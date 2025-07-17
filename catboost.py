@@ -67,33 +67,7 @@ sns.countplot(x='Is_Fake', data=df)
 plt.title("Production of real and fake products")
 plt.show()
 
-df['Rate_per_vote'] = df['Rate'] / (df['Rate_cnt'] + 1e-5)
-
-plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df, x="Rate_cnt", y="Rate_per_vote", alpha=0.5)
-plt.title("Rate ratio Rate count")
-plt.xlabel("Rates")
-plt.ylabel("Ratio")
-plt.show()
-
-
-# -------------- Big Issue -------------------
-# df_filtered = df[(df['Rate_cnt'] > 5) & (df['Rate_per_vote'] < 10)]
-
-# plt.figure(figsize=(10,6))
-# sns.scatterplot(data=df_filtered, x='Rate_cnt', y='Rate_per_vote', alpha=0.5)
-# plt.title("Points to votes ratio (with filter)")
-# plt.xlabel("Rate_cnt")
-# plt.ylabel("(Rate / Rate_cnt)")
-# plt.grid(True)
-# plt.show()
-
-# df['Rate_cnt'].hist(bins=100, figsize=(10,5))
-# plt.title("توزیع تعداد رأی‌ها (Rate_cnt)")
-# plt.xlabel("تعداد رأی‌ها")
-# plt.ylabel("تعداد محصولات")
-# plt.grid(True)
-# plt.show()
+df['Rate_per_vote'] = df['Rate'] / (df['Rate_cnt'] + 1)
 
 numeric_cols = df.select_dtypes(include=['float64', 'int64'])
 
@@ -105,7 +79,7 @@ plt.title("Solidarity")
 plt.show()
 
 df[["Price", "min_price_last_month"]].corr()
-df["Rate_per_vote"].head(10)
+df["Rate_per_vote"]
 
 # Feature Engineering
 df["Price_delta"] = df["Price"] - df["min_price_last_month"]
@@ -115,6 +89,21 @@ df["Price_delta"].isnull().sum()
 df.drop(columns=["min_price_last_month"],inplace=True)
 
 plt.figure(figsize=(10, 8))
-sns.heatmap(df.corr(numeric_only=True), annot=True, fmt=".2f", cmap="coolwarm")
+sns.heatmap(df.corr(numeric_only=True), annot=True, fmt=".2f", linewidths="1", cmap="coolwarm")
 plt.title("Correlation Heatmap")
 plt.show()
+
+# df['is_Rate_Zero'] = (df['Rate'] == 0).astype(int)
+# df['is_Rate_cnt_Zero'] = (df['Rate_cnt'] == 0).astype(int)
+
+# df_non_zero = df[(df['Rate'] > 0) & (df['Rate_cnt'] > 0)]
+# df_non_zero['Rate_per_vote'] = df_non_zero['Rate'] / df_non_zero['Rate_cnt']
+
+# plt.figure(figsize=(10, 6))
+# sns.scatterplot(data=df, x="Rate_cnt", y="Rate", hue="is_Rate_cnt_Zero", alpha=0.5)
+# plt.title("Rate vs Rate_cnt with Zero Indicator")
+# plt.xlabel("Rate_cnt")
+# plt.ylabel("Rate")
+# plt.show()
+
+df[(df["Rate_cnt"] == 0) & (df["Rate"] != 0)]
