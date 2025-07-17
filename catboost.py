@@ -103,3 +103,18 @@ plt.figure(figsize=(10, 8))
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
 plt.title("Solidarity")
 plt.show()
+
+df[["Price", "min_price_last_month"]].corr()
+df["Rate_per_vote"].head(10)
+
+# Feature Engineering
+df["Price_delta"] = df["Price"] - df["min_price_last_month"]
+
+df["Price_delta"].isnull().sum()
+
+df.drop(columns=["min_price_last_month"],inplace=True)
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(df.corr(numeric_only=True), annot=True, fmt=".2f", cmap="coolwarm")
+plt.title("Correlation Heatmap")
+plt.show()
