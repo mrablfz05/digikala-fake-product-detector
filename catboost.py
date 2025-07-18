@@ -107,3 +107,23 @@ plt.show()
 # plt.show()
 
 df[(df["Rate_cnt"] == 0) & (df["Rate"] != 0)]
+df["Rate"][:10]
+df["Rate_cnt"][:10]
+
+df["Rate_cnt"].value_counts()
+df["Rate"].value_counts()
+
+print(df[(df['Rate_cnt'] == 0)][['Rate', 'Rate_cnt']].head(50))
+
+print(f"non-zero Rate_cnt: {(len(df[df['Rate_cnt'] > 0]) / len(df)) * 100:.2f}%")
+
+df['is_Rate_Zero'] = (df['Rate'] == 0).astype(int)
+df['is_Rate_cnt_Zero'] = (df['Rate_cnt'] == 0).astype(int)
+
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df, x="Rate_cnt", y="Rate", alpha=0.5)
+plt.xscale('log')
+plt.title("Rate vs Rate_cnt (Log Scale)")
+plt.xlabel("Rate_cnt (Log)")
+plt.ylabel("Rate")
+plt.show()
