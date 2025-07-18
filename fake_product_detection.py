@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
+
 df = pd.read_csv("digikala-products.csv")
 
 df["Is_Fake"].unique()
@@ -93,19 +95,6 @@ sns.heatmap(df.corr(numeric_only=True), annot=True, fmt=".2f", linewidths="1", c
 plt.title("Correlation Heatmap")
 plt.show()
 
-# df['is_Rate_Zero'] = (df['Rate'] == 0).astype(int)
-# df['is_Rate_cnt_Zero'] = (df['Rate_cnt'] == 0).astype(int)
-
-# df_non_zero = df[(df['Rate'] > 0) & (df['Rate_cnt'] > 0)]
-# df_non_zero['Rate_per_vote'] = df_non_zero['Rate'] / df_non_zero['Rate_cnt']
-
-# plt.figure(figsize=(10, 6))
-# sns.scatterplot(data=df, x="Rate_cnt", y="Rate", hue="is_Rate_cnt_Zero", alpha=0.5)
-# plt.title("Rate vs Rate_cnt with Zero Indicator")
-# plt.xlabel("Rate_cnt")
-# plt.ylabel("Rate")
-# plt.show()
-
 df[(df["Rate_cnt"] == 0) & (df["Rate"] != 0)]
 df["Rate"][:10]
 df["Rate_cnt"][:10]
@@ -127,3 +116,5 @@ plt.title("Rate vs Rate_cnt (Log Scale)")
 plt.xlabel("Rate_cnt (Log)")
 plt.ylabel("Rate")
 plt.show()
+
+df.columns.tolist()
