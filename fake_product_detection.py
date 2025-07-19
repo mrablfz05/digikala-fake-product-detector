@@ -134,7 +134,10 @@ model = CatBoostClassifier(
     iterations= 500,
     learning_rate= 0.1,
     depth= 6,
-    verbose= 10,
+    verbose= 100,
+    l2_leaf_reg= 1,
+    border_count= 128,
+    early_stopping_rounds= 50,
     auto_class_weights= "Balanced",
     cat_features= cat_features
 )
