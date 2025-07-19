@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-
+from catboost import CatBoostClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 df = pd.read_csv("digikala-products.csv")
 
@@ -117,4 +119,29 @@ plt.xlabel("Rate_cnt (Log)")
 plt.ylabel("Rate")
 plt.show()
 
-df.columns.tolist()
+# Training
+print(df["Is_Fake"].value_counts(normalize=True))
+
+X = df.drop("Is_Fake", axis=1)
+y = df["Is_Fake"]
+
+cat_features = ["title_fa", "Category1", "Category2", "Brand", "sub_category", "Seller"]
+cat_features = [col for col in cat_features if col in X.columns]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = CatBoostClassifier(
+    iterations= 200,
+    learning_rate= 0.1,
+    depth= 4,
+    verbose= 10,
+    auto_class_weights= "Balanced",
+    cat_features= cat_features
+)
+
+model.fit(X_train, y_train)
+
+y_pred = model.predict_proba(X_test)[:, 1]
+threshold = 0.7
+y_pred_adjusted = (y_pred >= threshold).astype(int)
+print(classification_report(y_test, y_pred_adjusted))
