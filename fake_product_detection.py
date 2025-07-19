@@ -110,7 +110,7 @@ if os.path.exists(result_file):
 run_id = len(run_history) + 1
 
 model = CatBoostClassifier(
-    iterations= 5,
+    iterations= 500,
     learning_rate= 0.1,
     depth= 6,
     verbose= 50,
