@@ -133,7 +133,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = CatBoostClassifier(
     iterations= 500,
     learning_rate= 0.1,
-    depth= 4,
+    depth= 6,
     verbose= 10,
     auto_class_weights= "Balanced",
     cat_features= cat_features
