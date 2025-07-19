@@ -11,8 +11,6 @@ from sklearn.metrics import classification_report
 
 df = pd.read_csv("digikala-products.csv")
 
-df["Is_Fake"].unique()
-
 df = df.dropna(subset=["Seller"])
 df = df.dropna(subset=["Category2"])
 
@@ -22,32 +20,11 @@ df['title_fa'] = df['title_fa'].apply(lambda x: x[:15] + '...' if isinstance(x, 
 
 col = "sub_category"
 print(df[col].apply(type).value_counts())
-df.columns
-df.shape
-
-df["Price"].min()
-df["Price"].max()
-df["Price"].mean()
-
-df.columns
 
 # All columns are almost clean but "min_price_last_month" have about 75% NaN values but not that bad because we used CatBoost algorithm(good handle text-based and null values)
 col = "min_price_last_month"
 null_percentage = df[col].isnull().mean() * 100
 print(f"{col}: {null_percentage:.2f}% null values")
-
-df.isnull().sum()
-
-df["Rate"].min()
-df["Rate"].max()
-
-df["min_price_last_month"].min()
-df["min_price_last_month"].mean()
-df["min_price_last_month"].max()
-
-df["Brand"].unique()
-df["Is_Fake"].unique()
-df["sub_category"].unique()
 
 df.isnull().mean().sort_values(ascending=False).plot(kind="bar", figsize=(12, 5))
 plt.title("Null values")
@@ -76,7 +53,6 @@ plt.show()
 df['Rate_per_vote'] = df['Rate'] / (df['Rate_cnt'] + 1)
 
 numeric_cols = df.select_dtypes(include=['float64', 'int64'])
-
 corr_matrix = numeric_cols.corr()
 
 plt.figure(figsize=(10, 8))
@@ -90,8 +66,6 @@ df["Rate_per_vote"]
 # Feature Engineering
 df["Price_delta"] = df["Price"] - df["min_price_last_month"]
 
-df["Price_delta"].isnull().sum()
-
 df.drop(columns=["min_price_last_month"],inplace=True)
 
 plt.figure(figsize=(10, 8))
@@ -100,11 +74,6 @@ plt.title("Correlation Heatmap")
 plt.show()
 
 df[(df["Rate_cnt"] == 0) & (df["Rate"] != 0)]
-df["Rate"][:10]
-df["Rate_cnt"][:10]
-
-df["Rate_cnt"].value_counts()
-df["Rate"].value_counts()
 
 print(df[(df['Rate_cnt'] == 0)][['Rate', 'Rate_cnt']].head(50))
 
