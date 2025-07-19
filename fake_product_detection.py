@@ -110,7 +110,7 @@ if os.path.exists(result_file):
 run_id = len(run_history) + 1
 
 model = CatBoostClassifier(
-    iterations= 500,
+    iterations= 5,
     learning_rate= 0.1,
     depth= 6,
     verbose= 50,
@@ -130,6 +130,7 @@ report = classification_report(y_test, y_pred_adjusted, output_dict=True)
 
 current_run = {
     "Run": run_id,
+    "Iterations": 500,
     "Depth": 6,
     "l2_leaf_reg": 1,
     "Threshold": 0.6,
