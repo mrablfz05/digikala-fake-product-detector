@@ -131,7 +131,7 @@ cat_features = [col for col in cat_features if col in X.columns]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 model = CatBoostClassifier(
-    iterations= 200,
+    iterations= 500,
     learning_rate= 0.1,
     depth= 4,
     verbose= 10,
@@ -142,6 +142,6 @@ model = CatBoostClassifier(
 model.fit(X_train, y_train)
 
 y_pred = model.predict_proba(X_test)[:, 1]
-threshold = 0.7
+threshold = 0.9
 y_pred_adjusted = (y_pred >= threshold).astype(int)
 print(classification_report(y_test, y_pred_adjusted))
