@@ -110,14 +110,16 @@ if os.path.exists(result_file):
 run_id = len(run_history) + 1
 
 model = CatBoostClassifier(
-    iterations= 500,
-    learning_rate= 0.1,
-    depth= 6,
-    verbose= 50,
-    l2_leaf_reg= 2,
+    iterations= 800,
+    learning_rate= 0.2,
+    depth= 7,
+    verbose= 100,
+    l2_leaf_reg= 5,
     border_count= 128,
     early_stopping_rounds= 50,
-    auto_class_weights= "Balanced",
+    random_seed=42,
+    class_weights= [1, 5],
+    # auto_class_weights= "Balanced",
     cat_features= cat_features
 )
 
@@ -130,9 +132,9 @@ report = classification_report(y_test, y_pred_adjusted, output_dict=True)
 
 current_run = {
     "Run": run_id,
-    "Iterations": 500,
-    "Depth": 6,
-    "l2_leaf_reg": 2,
+    "Iterations": 800,
+    "Depth": 7,
+    "l2_leaf_reg": 5,
     "Threshold": 0.9,
     "Precision_False": report['False']['precision'],
     "Recall_False": report['False']['recall'],
