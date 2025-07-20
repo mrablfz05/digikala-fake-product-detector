@@ -1,3 +1,0 @@
-<!-- We have some challengs that can handled but I prefer to use catboost algorithm -->
-
-<!-- forexample we have cols like Category1, Category2 and others cols that contains persian text-based values. At first logical approach is use label-endoding and embeddings methods to convert texts into nummerical values to model understand to can train on it. but I think we have more efficient way called catboost. -->

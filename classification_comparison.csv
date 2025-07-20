@@ -1,2 +1,0 @@
-Run,Iterations,Depth,l2_leaf_reg,Threshold,Precision_False,Recall_False,F1_False,Precision_True,Recall_True,F1_True,Accuracy
-1,500,6,1,0.6,0.9294602716112651,1.0,0.9634406940497261,0.0,0.0,0.0,0.9294602716112651

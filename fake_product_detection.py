@@ -9,7 +9,7 @@ from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-df = pd.read_csv("digikala-products.csv")
+df = pd.read_csv("data/digikala-products.csv")
 
 df = df.dropna(subset=["Seller"])
 df = df.dropna(subset=["Category2"])
@@ -93,7 +93,7 @@ plt.show()
 # Training
 print(df["Is_Fake"].value_counts(normalize=True))
 
-result_file = "classification_comparison.csv"
+result_file = "./logs/text/classification_comparison.csv"
 run_history = []
 
 X = df.drop("Is_Fake", axis=1)
@@ -110,7 +110,7 @@ if os.path.exists(result_file):
 run_id = len(run_history) + 1
 
 model = CatBoostClassifier(
-    iterations= 500,
+    iterations= 100,
     learning_rate= 0.1,
     depth= 6,
     verbose= 50,
@@ -130,7 +130,7 @@ report = classification_report(y_test, y_pred_adjusted, output_dict=True)
 
 current_run = {
     "Run": run_id,
-    "Iterations": 500,
+    "Iterations": 100,
     "Depth": 6,
     "l2_leaf_reg": 1,
     "Threshold": 0.6,

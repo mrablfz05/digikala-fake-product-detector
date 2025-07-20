@@ -1,5 +1,6 @@
 *.csv
-docs-website/
 __pycache__/
+product-fake-detector-ui/
+product-fake-detector
 .vscode
 !classification_comparison.csv
