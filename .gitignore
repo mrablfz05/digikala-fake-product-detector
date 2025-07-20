@@ -1,3 +1,4 @@
 *.csv
 docs-website/
+__pycache__/
 !classification_comparison.csv
