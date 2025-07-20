@@ -1,4 +1,5 @@
 *.csv
 docs-website/
 __pycache__/
+.vscode
 !classification_comparison.csv
