@@ -110,11 +110,11 @@ if os.path.exists(result_file):
 run_id = len(run_history) + 1
 
 model = CatBoostClassifier(
-    iterations= 100,
+    iterations= 500,
     learning_rate= 0.1,
     depth= 6,
     verbose= 50,
-    l2_leaf_reg= 1,
+    l2_leaf_reg= 2,
     border_count= 128,
     early_stopping_rounds= 50,
     auto_class_weights= "Balanced",
@@ -130,10 +130,10 @@ report = classification_report(y_test, y_pred_adjusted, output_dict=True)
 
 current_run = {
     "Run": run_id,
-    "Iterations": 100,
+    "Iterations": 500,
     "Depth": 6,
-    "l2_leaf_reg": 1,
-    "Threshold": 0.6,
+    "l2_leaf_reg": 2,
+    "Threshold": 0.9,
     "Precision_False": report['False']['precision'],
     "Recall_False": report['False']['recall'],
     "F1_False": report['False']['f1-score'],
@@ -149,6 +149,5 @@ with open(result_file, "w", newline='') as f:
     if run_id == 1:
         writer.writeheader()
     writer.writerows(run_history)
-    
 comparison_df = pd.DataFrame(run_history)
 print(comparison_df.to_string(index=False))
