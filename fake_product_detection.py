@@ -5,7 +5,7 @@ import seaborn as sns
 
 from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 df = pd.read_csv("data/digikala-products.csv")
 
@@ -109,7 +109,6 @@ model = CatBoostClassifier(
     early_stopping_rounds= 80,
     random_seed=42,
     class_weights= [1, 5],
-    # auto_class_weights= "Balanced",
     cat_features= cat_features
 )
 
@@ -119,3 +118,24 @@ y_pred = model.predict_proba(X_test)[:, 1]
 threshold = 0.9
 y_pred_adjusted = (y_pred >= threshold).astype(int)
 print(classification_report(y_test, y_pred_adjusted))
+
+cm = confusion_matrix(y_test, y_pred_adjusted)
+plt.figure(figsize=(6, 4))
+sns.heatmap(
+    cm, 
+    annot=True, 
+    fmt="d", 
+    cmap="Blues", 
+    cbar=False, 
+    linewidths=1, 
+    linecolor='black', 
+    annot_kws={"size": 16}
+)
+plt.title('Confusion Matrix', fontsize=16)
+plt.xlabel('Predicted Label', fontsize=14)
+plt.ylabel('True Label', fontsize=14)
+plt.xticks([0.5, 1.5], ['Real', 'Fake'], fontsize=12)
+plt.yticks([0.5, 1.5], ['Real', 'Fake'], fontsize=12, rotation=0)
+plt.tight_layout()
+plt.show()
+print("Confusion Matrix:\n", cm)
