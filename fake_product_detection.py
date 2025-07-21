@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-import csv
 
 from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
@@ -93,9 +91,6 @@ plt.show()
 # Training
 print(df["Is_Fake"].value_counts(normalize=True))
 
-result_file = "./logs/text/classification_comparison.csv"
-run_history = []
-
 X = df.drop("Is_Fake", axis=1)
 y = df["Is_Fake"]
 
@@ -104,19 +99,14 @@ cat_features = [col for col in cat_features if col in X.columns]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-if os.path.exists(result_file):
-    run_history = pd.read_csv(result_file).to_dict('records')
-
-run_id = len(run_history) + 1
-
 model = CatBoostClassifier(
-    iterations= 800,
+    iterations= 750,
     learning_rate= 0.2,
     depth= 7,
     verbose= 100,
     l2_leaf_reg= 5,
     border_count= 128,
-    early_stopping_rounds= 50,
+    early_stopping_rounds= 80,
     random_seed=42,
     class_weights= [1, 5],
     # auto_class_weights= "Balanced",
@@ -128,28 +118,4 @@ model.fit(X_train, y_train)
 y_pred = model.predict_proba(X_test)[:, 1]
 threshold = 0.9
 y_pred_adjusted = (y_pred >= threshold).astype(int)
-report = classification_report(y_test, y_pred_adjusted, output_dict=True)
-
-current_run = {
-    "Run": run_id,
-    "Iterations": 800,
-    "Depth": 7,
-    "l2_leaf_reg": 5,
-    "Threshold": 0.9,
-    "Precision_False": report['False']['precision'],
-    "Recall_False": report['False']['recall'],
-    "F1_False": report['False']['f1-score'],
-    "Precision_True": report['True']['precision'],
-    "Recall_True": report['True']['recall'],
-    "F1_True": report['True']['f1-score'],
-    "Accuracy": report['accuracy']
-}
-run_history.append(current_run)
-
-with open(result_file, "w", newline='') as f:
-    writer = csv.DictWriter(f, fieldnames=current_run.keys())
-    if run_id == 1:
-        writer.writeheader()
-    writer.writerows(run_history)
-comparison_df = pd.DataFrame(run_history)
-print(comparison_df.to_string(index=False))
+print(classification_report(y_test, y_pred_adjusted))
