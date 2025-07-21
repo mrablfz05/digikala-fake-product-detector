@@ -1,8 +1,7 @@
 from imports import pd, np
 
 def load_and_clean_data(path="../data/digikala-products.csv"):
-    df = pd.read_csv(path)
-    
+    df = pd.read_csv(path)    
     df = df.dropna(subset=["Seller", "Category2"])
     df["min_price_last_month"] = df["min_price_last_month"].replace(0, np.nan)
 

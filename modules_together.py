@@ -8,6 +8,30 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
 df = pd.read_csv("data/digikala-products.csv")
+# df2 = pd.read_csv("data/digikala-comments.csv")
+
+df['id'] = df['id'].astype(str)
+# df2['product_id'] = df2['product_id'].astype(str)
+
+# فیلتر کردن نظراتی که product_id آن‌ها در id محصولات وجود دارد
+# matched_comments = df2[df2['product_id'].isin(df['id'])]
+
+# فیلتر کردن نظراتی که product_id آن‌ها در id محصولات وجود ندارد
+# unmatched_comments = df2[~df2['product_id'].isin(df['id'])]
+
+# نمایش تعداد تطبیق‌ها
+# print(f"تعداد نظرات تطبیق‌یافته: {len(matched_comments)}")
+# print(f"تعداد نظرات بدون تطبیق: {len(unmatched_comments)}")
+
+# نمایش نمونه‌ای از نظرات تطبیق‌یافته
+# print("نظرات تطبیق‌یافته (نمونه):")
+# print(matched_comments[['product_id', 'body']].head())
+
+# نمایش نمونه‌ای از نظرات بدون تطبیق
+# print("نظرات بدون تطبیق (نمونه):")
+# print(unmatched_comments[['product_id', 'body']].head())
+
+
 
 df = df.dropna(subset=["Seller"])
 df = df.dropna(subset=["Category2"])
