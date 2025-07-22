@@ -91,19 +91,13 @@ plt.show()
 # Training
 print(df["Is_Fake"].value_counts(normalize=True))
 
+X = df.drop("Is_Fake", axis=1)
+y = df["Is_Fake"]
+
 cat_features = ["title_fa", "Category1", "Category2", "Brand", "sub_category", "Seller"]
-cat_features = [col for col in cat_features if col in df.columns]
+cat_features = [col for col in cat_features if col in X.columns]
 
-# solve data leakage
-train_ids = set(df.sample(frac=0.8, random_state=42)["id"])
-X_train = df[df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
-X_test = df[~df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
-y_train = df[df["id"].isin(train_ids)]["Is_Fake"]
-y_test = df[~df["id"].isin(train_ids)]["Is_Fake"]
-
-common_ids = set(X_train["id"]).intersection(set(X_test["id"]))
-print("common id's after fix:", len(common_ids))
-print(f"new olverlap: {(len(common_ids) / len(X_train)) * 100:.2f}%")
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 model = CatBoostClassifier(
     iterations= 700,
@@ -117,6 +111,7 @@ model = CatBoostClassifier(
     class_weights= [1, 5],
     cat_features= cat_features
 )
+
 model.fit(X_train, y_train)
 
 y_pred = model.predict_proba(X_test)[:, 1]
@@ -144,6 +139,33 @@ plt.yticks([0.5, 1.5], ['Real', 'Fake'], fontsize=12, rotation=0)
 plt.tight_layout()
 plt.show()
 print("Confusion Matrix:\n", cm)
+
+
+# check model for ensurance
+# Data Leakage
+common_ids = set(X_train["id"]).intersection(set(X_test["id"]))
+print("common id's: ", len(common_ids))
+
+print(len(X_train))
+print(len(X_test))
+
+overlap_percentage = (len(common_ids) / len(X_train)) * 100
+print(f"overlap: {overlap_percentage:.2f}%")
+
+# solve data leakage
+train_ids = set(df.sample(frac=0.8, random_state=42)["id"])
+X_train = df[df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
+X_test = df[~df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
+y_train = df[df["id"].isin(train_ids)]["Is_Fake"]
+y_test = df[~df["id"].isin(train_ids)]["Is_Fake"]
+
+
+common_ids = set(X_train["id"]).intersection(set(X_test["id"]))
+print("common id's after fix:", len(common_ids))
+print(f"new olverlap: {(len(common_ids) / len(X_train)) * 100:.2f}%")
+
+
+
 
 # Distributability
 plt.figure(figsize=(12, 5))
