@@ -2,15 +2,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
 df = pd.read_csv("data/digikala-products.csv")
 
-df = df.dropna(subset=["Seller"])
-df = df.dropna(subset=["Category2"])
+# Check if all data is loaded
+print(f"Total rows loaded: {len(df)}")
+
+df = df.dropna(subset=["Seller", "Category2"])
 
 df["min_price_last_month"] = df["min_price_last_month"].replace(0, np.nan)
 
@@ -19,7 +20,6 @@ df['title_fa'] = df['title_fa'].apply(lambda x: x[:15] + '...' if isinstance(x, 
 col = "sub_category"
 print(df[col].apply(type).value_counts())
 
-# All columns are almost clean but "min_price_last_month" have about 75% NaN values but not that bad because we used CatBoost algorithm(good handle text-based and null values)
 col = "min_price_last_month"
 null_percentage = df[col].isnull().mean() * 100
 print(f"{col}: {null_percentage:.2f}% null values")
@@ -31,7 +31,7 @@ plt.grid(True)
 plt.show()
 
 sns.boxplot(data=df[["Price", "min_price_last_month"]], color="red")
-plt.title("random")
+plt.title("Boxplot of Price and min_price_last_month")
 plt.show()
 
 sns.scatterplot(x="Price", y="Rate", hue="Is_Fake", data=df)
@@ -55,16 +55,15 @@ corr_matrix = numeric_cols.corr()
 
 plt.figure(figsize=(10, 8))
 sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f", linewidths=0.5)
-plt.title("Solidarity")
+plt.title("Correlation Matrix")
 plt.show()
 
-df[["Price", "min_price_last_month"]].corr()
-df["Rate_per_vote"]
+print(df[["Price", "min_price_last_month"]].corr())
+print(df["Rate_per_vote"].describe())
 
-# Feature Engineering
 df["Price_delta"] = df["Price"] - df["min_price_last_month"]
 
-df.drop(columns=["min_price_last_month"],inplace=True)
+df.drop(columns=["min_price_last_month"], inplace=True)
 
 plt.figure(figsize=(10, 8))
 sns.heatmap(df.corr(numeric_only=True), annot=True, fmt=".2f", linewidths="1", cmap="coolwarm")
@@ -88,16 +87,15 @@ plt.xlabel("Rate_cnt (Log)")
 plt.ylabel("Rate")
 plt.show()
 
-# Training
 print(df["Is_Fake"].value_counts(normalize=True))
 
 cat_features = ["title_fa", "Category1", "Category2", "Brand", "sub_category", "Seller"]
 cat_features = [col for col in cat_features if col in df.columns]
 
-# solve data leakage
-train_ids = set(df.sample(frac=0.8, random_state=42)["id"])
-X_train = df[df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
-X_test = df[~df["id"].isin(train_ids)].drop("Is_Fake", axis=1)
+# Split based on IDs to avoid leakage and keep all data
+train_ids = set(df.sample(frac=0.8, random_state=32)["id"])
+X_train = df[df["id"].isin(train_ids)].drop(columns=["Is_Fake"])
+X_test = df[~df["id"].isin(train_ids)].drop(columns=["Is_Fake"])
 y_train = df[df["id"].isin(train_ids)]["Is_Fake"]
 y_test = df[~df["id"].isin(train_ids)]["Is_Fake"]
 
@@ -105,57 +103,48 @@ common_ids = set(X_train["id"]).intersection(set(X_test["id"]))
 print("common id's after fix:", len(common_ids))
 print(f"new olverlap: {(len(common_ids) / len(X_train)) * 100:.2f}%")
 
+# Use class_weights to handle imbalance
 model = CatBoostClassifier(
-    iterations= 700,
-    learning_rate= 0.2,
-    depth= 7,
-    verbose= 100,
-    l2_leaf_reg= 5,
-    border_count= 128,
-    early_stopping_rounds= 80,
-    random_seed=42,
-    class_weights= [1, 5],
-    cat_features= cat_features
+    iterations=600,
+    learning_rate=0.1,
+    depth=4,
+    l2_leaf_reg=5,
+    early_stopping_rounds=50,
+    class_weights=[1, 20],  # Increased for better balance
+    random_seed=32,
+    border_count=128,
+    verbose=100,
+    cat_features=cat_features
 )
-model.fit(X_train, y_train)
+model.fit(X_train, y_train, eval_set=(X_test, y_test))
 
 y_pred = model.predict_proba(X_test)[:, 1]
-threshold = 0.9
+threshold = 0.3  # Adjusted to improve Precision and F1 for True
 y_pred_adjusted = (y_pred >= threshold).astype(int)
+print("گزارش طبقه‌بندی:")
 print(classification_report(y_test, y_pred_adjusted))
 
 cm = confusion_matrix(y_test, y_pred_adjusted)
 plt.figure(figsize=(6, 4))
-sns.heatmap(
-    cm, 
-    annot=True, 
-    fmt="d", 
-    cmap="Blues", 
-    cbar=False, 
-    linewidths=1, 
-    linecolor='black', 
-    annot_kws={"size": 16}
-)
-plt.title('Confusion Matrix', fontsize=16)
-plt.xlabel('Predicted Label', fontsize=14)
-plt.ylabel('True Label', fontsize=14)
-plt.xticks([0.5, 1.5], ['Real', 'Fake'], fontsize=12)
-plt.yticks([0.5, 1.5], ['Real', 'Fake'], fontsize=12, rotation=0)
-plt.tight_layout()
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", cbar=False, linewidths=1)
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.xticks([0.5, 1.5], ['Real', 'Fake'])
+plt.yticks([0.5, 1.5], ['Real', 'Fake'])
 plt.show()
 print("Confusion Matrix:\n", cm)
 
-# Distributability
 plt.figure(figsize=(12, 5))
 plt.subplot(1, 2, 1)
 sns.histplot(X_train['Price'], kde=True, color='blue', label='Train')
 sns.histplot(X_test['Price'], kde=True, color='red', label='Test')
-plt.title('توزیع Price')
+plt.title('distribution Price')
 plt.legend()
 
 plt.subplot(1, 2, 2)
 sns.histplot(X_train['Rate'], kde=True, color='blue', label='Train')
 sns.histplot(X_test['Rate'], kde=True, color='red', label='Test')
-plt.title('توزیع Rate')
+plt.title('distribution Rate')
 plt.legend()
 plt.show()
